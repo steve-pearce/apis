@@ -15,11 +15,13 @@ import { MONGODB_URI as mongoUrl, SESSION_SECRET as secret } from "./util/secret
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
 import * as elementController from "./controllers/element";
+import * as propController from "./controllers/prop";
 import * as userController from "./controllers/user";
 import * as apiController from "./controllers/api";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
+// console.log(colorArray.length)
 
 // Create Express server
 const app = express();
@@ -80,6 +82,7 @@ app.use(
  */
 app.get("/", homeController.index);
 app.get("/element/:e", elementController.index);
+app.get("/prop/:e", propController.index);
 app.post("/login", userController.postLogin);
 app.get("/logout", userController.logout);
 app.get("/forgot", userController.getForgot);

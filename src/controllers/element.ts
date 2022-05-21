@@ -1,47 +1,84 @@
 import { Request, Response } from "express";
+import {colors} from './colors'
+import {redis} from './redis'
+console.log(redis)
+import { Element, ElementDocument } from "../models/Element";
 
-const element: any = {
-    element: "span",
-    children: [
-        {
-            element: "button",
-            children: ["State.c: ", "eval(state.c)", {
-                    element: "span", children: ["Props.state.c: ", "eval(props.state.c)"],
-                    props: { className: 'MuiButton-label' }
-                },
-                { element: "span", props: { className: 'MuiTouchRipple-root', children: [] }, children: [] }
-            ],
-            props: { tabIndex: 0, type: "button", style: { backgroundColor: 'rgb(30, 167, 253)' },
-            className: "MuiButtonBase-root MuiButton-root MuiButton-text storybook-button storybook-button--large storybook-button--primary",
-            onClick: `eval(state.c = (state.c || 0) + 1; (props.setState || setState)({ ...state }))` } },
-    ],
-    props: { onClick: `eval(state.c = (state.c || 0) + 1; (props.setState || setState)({ ...state }))` }
-}
-
-const makeSpace = (top: number) => Array.from({ length: 100 }, (_, left) => ({
-    element: 'span',
-    props: {
-        onClick: `eval(props.context.onClick(${left}))`,
-        key: `${top}-${left}`,
-        style: { position: 'fixed', top, left, backgroundColor: '#' + (Math.random() * 0xFFFFFF << 0).toString(16), width: 1, height: 1, margin: 0 },
-        className: 'spce'
-    },
-    children: []
-}))
-const space = [];
-for (let top = 0; top < 100; top++) space.push(makeSpace(top + 64))
 
 const elements: any = {
-    space,
-    AppBar: {
-        element: '',
-        children: [],
-        props: {}
-    },
+    cube: {
+        length: 6,
+            element: "instancedMesh",
+            props: {
+                key: 'eval(`instancedMesh-${props.i}`)',
+                ref: 'eval(refs.ref)',
+                args: 'eval([null, null, props.size * props.size])',
+                onPointerMove: 'eval((e) => { e.stopPropagation(); setState({ hovered: e.instanceId }); props.setUpdateFrame(true) })',
+                onPointerOut: 'eval((e) => { e.stopPropagation(); setState({ ...state, hovered: undefined }); props.setUpdateFrame(true) })',
+                onClick: 'eval((e) => { e.stopPropagation(); setState({ ...state, hovered: e.instanceId }); props.setUpdateFrame(true); props.socket.emit("colored", { elName: props.elName, c: props.color, id: e.instanceId, i: props.i, mine: props.mine, size: props.size }) })'
+            },
+            children: [
+                {
+                    element: "boxGeometry",
+                    props: {
+                        key: 'eval(`boxGeometry-${props.i}`)',
+                        args: [1, 1, 1]
+                    },
+                    children: [
+                        {
+                            element: "instancedBufferAttribute",
+                            props: {
+                                key: 'eval(`instancedBufferAttribute-${props.i}`)',
+                                attachObject: ['attributes', 'color'],
+                                args: 'eval([colorArray, 3])'
+                            }
+                        }
+                    ]
+                },
+                {
+                    element: "meshPhongMaterial",
+                    props: { key: 'eval(`meshPhongMaterial-${props.i}`)', vertexColors: 'eval(_3.VertexColors)' },
+                }
+            ],
+        useEffects: [
+        {
+            effect: `() => void (refs.prevRef.current = state.hovered)`,
+            deps: `[state.hovered]`
+        },
+        {
+            effect: `() => {
+                let i = 0;
+                if (!props.updateFrame) return;
+                const threeObject = new _3.Object3D();
+                function fill(id) {
+                    threeObject.scale.set(1, 1, 1);
+                    threeObject.updateMatrix();
+                    refs.ref.current.setMatrixAt(id, threeObject.matrix);
+                    if (state.hovered !== refs.prevRef.Current) {
+                        new _3.Color().set(id === state.hovered ? props.color : props.data[id]).toArray(colorArray, id * 3);
+                        if (refs.ref.current.geometry.attributes.color) refs.ref.current.geometry.attributes.color.needsUpdate = true;
+                    }
+                }
+        
+                for (let x = 0; x < props.size; x++)
+                    for (let y = 0; y < props.size; y++) {
+                        if (props.i === 0 || props.i === 1) threeObject.position.set(x, y, props.i === 1 ? 0 : props.size) // F/B
+                        else if (props.i === 2 || props.i === 3) threeObject.position.set(x, props.i === 3 ? 0 : props.size, y); // T/B
+                        else if (props.i === 4 || props.i === 5) threeObject.position.set(props.i === 4 ? 0 : props.size, y, x) // L/R
+                        fill(i++)
+                    }
+                    refs.ref.current.instanceMatrix.needsUpdate = true;
+                props.setUpdateFrame(false)
+            }`,
+            deps: '[state.hovered]'
+        }
+    ]
+},
     LoginButton: {
         element: "eval(packages.Button)",
         children: [`eval(props.id_token ? "Logout" : "Login")`],
         props: {
+            label: `eval(props.id_token ? "Logout" : "Login")`,
             onClick: `eval(props.id_token ? window.location.href = '/' : new packages.auth0.WebAuth({
             clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
             domain: 'dev-1q0ufr8q.us.auth0.com',
@@ -55,25 +92,74 @@ const elements: any = {
             scope: 'openid email',
           }))`
         }
+    },
+    Canvas: {
+        element: 'eval(packages.Canvas)',
+        props: {
+            dpr: [1, 2],
+            performance: {
+                current: 0.1,
+                min: 0.1,
+                max: 1,
+                debounce: 200,
+            },
+            frameloop: 'demand', camera: { position: [625, 625, 625], near: 10, far: 2147483647 }, gl: { antialias: false, alpha: false }, onCreated: `eval(({ gl }) => gl.setClearColor('black'))`
+        },
+        children: [
+            {
+                element: 'eval(ambientLight)',
+                props: {},
+                children: []
+            },
+            {
+                element: 'eval(packages.Switch)',
+                props: {},
+                children: [
+                    {
+                        element: 'eval(packages.Route)',
+                        props: { path: '/' },
+                        children: ['eval((_params) => data && data.length === 6 && data.map((datum, i) => <packages.Boxes {...({ ...(params || { size: 500 }), i, key: i, setUpdateFrame, updateFrame, setData, data: datum, color })} />))']
+                    }
+                ]
+            },
+            {
+                element: 'eval(packages.OrbitControls)',
+                props: {},
+                children: []
+            },
+            {
+                element: 'eval(packages.Effects)',
+                props: {},
+                children: []
+            },
+            {
+                element: 'eval(packages.AdaptiveDpr)',
+                props: { pixelated: true },
+                children: []
+            },
+        ]
     },    
     Header: {
         element: 'eval(packages.AppBar)',
-        props: { position: 'static' },
+        props: { position: 'static', style: { width: '100%' } },
         children: [
             {
                 element: 'eval(packages.Toolbar)',
                 props: {
-                    disableGutters: true
+                    disableGutters: true,
+                    style: { width: '100%', backgroundColor: 'black', borderColor: 'ghostwhite', borderRadius: 5, border: 'solid', borderWidth: 1 }
                 },
                 children: [
                     {
                         element: 'eval(packages.Typography)',
-                        children: 'LOGO',
+                        children: 'CRUD',
                         props: {
-                            variant: "h6",
+                            className: 'crud',
+                            variant: "a",
+                            onClick: `eval(props.context.navigate('/'))`,
                             noWrap: true,
                             component: "div",
-                            sx: { mr: 2, display: { xs: 'none', md: 'flex' } },
+                            sx: { cursor: "pointer", ml: 2, mr: 2, display: { xs: 'none', md: 'flex' } },
                         }
                     },
                     {
@@ -86,11 +172,12 @@ const elements: any = {
                                 element: 'eval(packages.IconButton)',
                                 children: [{ element: `eval(packages.MenuIcon)`, onClick: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: true }))', }],
                                 props: {
+                                    style: { marginLeft: 10 },
                                     size: "large",
-                                    "aria-label": "account of current user",
+                                    "aria-label": "Menu Options",
                                     "aria-controls": "menu-appbar",
                                     "aria-haspopup": true,
-                                    onClick: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: true }))',
+                                    onClick: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: true, currentTarget: event.currentTarget }))',
                                     color: "inherit"
                                 }
                             },
@@ -99,7 +186,7 @@ const elements: any = {
                                 props: {
                                     sx: { mt: '45px' },
                                     id: "menu-appbar",
-                                    anchorEl: `eval(props.context.anchorElUser)`,
+                                    anchorEl: `eval(props.context.currentTarget)`,
                                     anchorOrigin: {
                                         vertical: 'top',
                                         horizontal: 'right',
@@ -110,12 +197,12 @@ const elements: any = {
                                         horizontal: 'right',
                                     },
                                     open: 'eval(props.context.anchorElNavOpen)',
-                                    onClose: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false }))',
+                                    onClose: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))',
                                 },
-                                children: ['Products', 'Pricing', 'Blog'].map(key =>
+                                children: ['Logout'].map(key =>
                                 ({
                                     element: 'eval(packages.MenuItem)',
-                                    props: { style: { width: "100%", color: 'black' }, key, onClick: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false }))', sx: { my: 2, color: 'white', display: 'block' } },
+                                    props: { label: key, style: { width: "100%", color: 'black' }, key, onClick: 'eval(window.location.href = "/")', sx: { my: 2, color: 'white', display: 'block' } },
                                     children: [key]
                                 }))
                             }
@@ -123,34 +210,65 @@ const elements: any = {
                     },
                     {
                         element: 'eval(packages.Typography)',
-                        children: ['LOGO-xs'],
+                        children: ['CRUD'],
                         props: {
+                            className: 'crud',
                             variant: "h6",
                             noWrap: true,
+                            onClick: `eval(props.context.navigate('/');)`,
                             component: "div",
                             sx: {
+                                cursor: "pointer",
                                 flexGrow: 1,
-                                display: { xs: 'flex', md: 'none' },
+                                display: { xs: 'flex', md: 'none', ml: 2, mr: 2 },
                             },
                         }
                     },
                     {
                         element: 'eval(packages.Box)',
                         props: {
+                            style: {color: 'white'},
                             sx: {
+                                color: 'white',
                                 flexGrow: 1,
                                 display: { xs: 'none', md: 'flex' },
                             }
                         },
-                        children: ['Products', 'Pricing', 'Blog'].map(key => ({ element: 'eval(packages.Button)', props: { key, onClick: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false }))', label: key, sx: { my: 2, color: 'white', display: 'block' }, children: key } }))
+                        children: ['Space'].map(key => ({ element: 'eval(packages.Button)', props: { key,
+                            onClick: `eval(props.context.id_token ? props.context.navigate('/space') : new packages.auth0.WebAuth({
+                            clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
+                            domain: 'dev-1q0ufr8q.us.auth0.com',
+                          }).authorize({
+                            responseType: 'token id_token',
+                            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+                            audience:
+                              'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
+                              'https://localhost:4000' ||
+                              'https://crud.dev',
+                            scope: 'openid email',
+                          }))`,
+                        label: `eval(props.context.id_token ? "${key}" : "Login")`, style: { color: 'white' }, sx: { my: 2, color: 'white', display: 'block' }, children: `eval(props.context.id_token ? "${key}" : "Login")` } }))
                     },
                     {
                         element: 'eval(packages.IconButton)',
-                        props: { onClick: 'eval(props.context.onClick({ anchorElNavOpen: true, anchorElOpen: false }))', sx: { p: 0 } },
+                        props: { 
+                            style: { marginRight: 10 },
+                            onClick: `eval(props.context.id_token ? props.context.onClick({ anchorElNavOpen: true, anchorElOpen: false, currentTarget: event.currentTarget }) : new packages.auth0.WebAuth({
+                            clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
+                            domain: 'dev-1q0ufr8q.us.auth0.com',
+                          }).authorize({
+                            responseType: 'token id_token',
+                            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+                            audience:
+                              'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
+                              'https://localhost:4000' ||
+                              'https://crud.dev',
+                            scope: 'openid email',
+                          }))`, sx: { p: 0 } },
                         children: [
                             {
                                 element: 'eval(packages.Avatar)',
-                                props: { alt: "Avatar Sharp", src: '' },
+                                props: { alt: "Avatar Sharp", src: 'eval(props.context.id_token ? "https://cdn.pixabay.com/photo/2016/04/15/18/05/computer-1331579_960_720.png" : "https://media.istockphoto.com/photos/businessman-icon-as-avatar-or-default-profile-picture-picture-id477021414?k=20&m=477021414&s=612x612&w=0&h=mf3xeqh6T9gS-TEBYaIS8g9GJf-tre6jTd0MkR0vNLM=")' },
                                 children: ['']
                             }
                         ]
@@ -160,7 +278,7 @@ const elements: any = {
                         props: {
                             sx: { mt: '45px' },
                             id: "menu-appbar",
-                            anchorEl: `eval(props.context.anchorElUser)`,
+                            anchorEl: `eval(props.context.currentTarget)`,
                             anchorOrigin: {
                                 vertical: 'top',
                                 horizontal: 'left',
@@ -171,13 +289,24 @@ const elements: any = {
                                 horizontal: 'left',
                             },
                             open: 'eval(props.context.anchorElOpen)',
-                            onClose: 'eval(props.context.onClose({ anchorElNavOpen: false, anchorElOpen: false }))',
+                            onClose: 'eval(props.context.onClose({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))',
                         },
-                        children: ['Account', 'Logout'].map(key =>
+                        children: ['Space'].map(key =>
                         ({
                             element: 'eval(packages.MenuItem)',
-                            props: { style: { width: "100%", color: 'black' }, key, onClick: 'eval(props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false }))', label: "Profile", sx: { my: 2, color: 'white', display: 'block' } },
-                            children: [key]
+                            props: { label: `eval(props.context.id_token ? "${key}" : "Login")`, disableRipple: true, style: { width: "100%", color: 'black' }, key, onClick: `eval(props.context.id_token ? props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false }) : new packages.auth0.WebAuth({
+                                clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
+                                domain: 'dev-1q0ufr8q.us.auth0.com',
+                              }).authorize({
+                                responseType: 'token id_token',
+                                redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+                                audience:
+                                  'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
+                                  'https://localhost:4000' ||
+                                  'https://crud.dev',
+                                scope: 'openid email',
+                              }))`, sx: { my: 2, color: 'white', display: 'block' } },
+                            children: [`eval(props.context.id_token ? "${key}" : "Login")`]
                         }))
                     }
                 ]
@@ -192,9 +321,18 @@ const elements: any = {
  * element getter. 🔎
  * @route GET /element
 */
-export const index = (req: Request, res: Response) => {
-    console.log(req.params.e, elements[req.params.e])
-    res.send(elements[req.params.e] || element);
+export const index = async (req: Request, res: Response) => {
+    console.log(req.params.e)
+    // await Element.deleteOne({element: req.params.e})
+    let ele = await Element.findOne({element: req.params.e})
+    if (!ele && elements[req.params.e]) {
+        ele = new Element({
+            ...elements[req.params.e]
+        });
+        console.log("element", ele)
+        await ele.save()
+    }
+    res.send(ele || elements[req.params.e] || null);
 };
 
 
@@ -203,7 +341,7 @@ export const index = (req: Request, res: Response) => {
  * @route POST /element
 */
 export const postIndex = (req: Request, res: Response) => {
-    res.send(element);
+    res.send(null);
 };
 
 /**
@@ -211,7 +349,7 @@ export const postIndex = (req: Request, res: Response) => {
  * @route PUT /element
 */
 export const putIndex = (req: Request, res: Response) => {
-    res.send(element);
+    res.send(null);
 };
 
 
@@ -220,5 +358,5 @@ export const putIndex = (req: Request, res: Response) => {
  * @route DELETE /element
 */
 export const deleteIndex = (req: Request, res: Response) => {
-    res.send(element);
+    res.send(null);
 };
