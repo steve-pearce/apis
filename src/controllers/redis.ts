@@ -1,25 +1,27 @@
-const asyncRedis = require('async-redis');
-require('dotenv').config();
-const url = require('url');
+/* eslint @typescript-eslint/no-var-requires: "off" */
+const asyncRedis = require("async-redis");
+import dotenv from "dotenv";
+import {URL} from "url";
+dotenv.config();
 const redisURL = process.env.REDISCLOUD_URL
-  ? url.parse(process.env.REDISCLOUD_URL)
-  : console.log('No redis url found');
+  ? new URL(process.env.REDISCLOUD_URL)
+  : console.log("No redis url found");
 const client = redisURL
   ?  asyncRedis.createClient(redisURL.port, redisURL.hostname, { no_ready_check: true })
   :  asyncRedis
       .createClient()
-      .then(console.log('No redis url found. Connecting to local redis server instead.'));
+      .then(console.log("No redis url found. Connecting to local redis server instead."));
 process.env.REDISPASS
   ? client.auth(process.env.REDISPASS)
-  : console.log('No redis password found.');
+  : console.log("No redis password found.");
 
-client.on('connect', () => console.log('Connected to redis'));
+client.on("connect", () => console.log("Connected to redis"));
 
 // Convert object to string if value is an object
 // if a time to live is defined then give the data a time to expire
 const set = async (key: string, value: any, ttl?: any) => {
-  const valueToInsert = typeof value == 'string' ? value : JSON.stringify(value);
-  !ttl ? await client.set(key, valueToInsert) : await client.set(key, valueToInsert, 'EX', ttl);
+  const valueToInsert = typeof value == "string" ? value : JSON.stringify(value);
+  !ttl ? await client.set(key, valueToInsert) : await client.set(key, valueToInsert, "EX", ttl);
 };
 
 const get = async (key: string) => {

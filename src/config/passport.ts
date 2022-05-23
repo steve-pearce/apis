@@ -11,34 +11,62 @@ import { NativeError } from "mongoose";
 const LocalStrategy = passportLocal.Strategy;
 const FacebookStrategy = passportFacebook.Strategy;
 
-passport.serializeUser<any, any>((req: any, user: any, done: (arg0: any, arg1: any) => void) => {
+passport.serializeUser<any, any>(
+  (req: any, user: any, done: (arg0: any, arg1: any) => void) => {
     done(undefined, user);
-});
+  }
+);
 
-passport.deserializeUser((id: any, done: (arg0: NativeError, arg1: UserDocument) => any) => {
-    User.findById(id, (err: NativeError, user: UserDocument) => done(err, user));
-});
-
+passport.deserializeUser(
+  (id: any, done: (arg0: NativeError, arg1: UserDocument) => any) => {
+    User.findById(id, (err: NativeError, user: UserDocument) =>
+      done(err, user)
+    );
+  }
+);
 
 /**
  * Sign in using Email and Password.
  */
-passport.use(new LocalStrategy({ usernameField: "email" }, (email: string, password: string, done: (arg0: NativeError, arg1?: boolean | UserDocument, arg2?: { message: string; }) => void) => {
-    User.findOne({ email: email.toLowerCase() }, (err: NativeError, user: UserDocument) => {
-        if (err) { return done(err, true, { message: "Login Error, please check your email and password." }); }
-        if (!user) {
+passport.use(
+  new LocalStrategy(
+    { usernameField: "email" },
+    (
+      email: string,
+      password: string,
+      done: (
+        arg0: NativeError,
+        arg1?: boolean | UserDocument,
+        arg2?: { message: string }
+      ) => void
+    ) => {
+      User.findOne(
+        { email: email.toLowerCase() },
+        (err: NativeError, user: UserDocument) => {
+          if (err) {
+            return done(err, true, {
+              message: "Login Error, please check your email and password.",
+            });
+          }
+          if (!user) {
             return done(undefined);
-        }
-        user.comparePassword(password, (err: Error, isMatch: boolean) => {
-            if (err) { return done(err, true, { message: "Login Error, please check your email and password." }); }
+          }
+          user.comparePassword(password, (err: Error, isMatch: boolean) => {
+            if (err) {
+              return done(err, true, {
+                message: "Login Error, please check your email and password.",
+              });
+            }
             if (isMatch) {
-                return done(undefined);
+              return done(undefined);
             }
             return done(undefined);
-        });
-    });
-}));
-
+          });
+        }
+      );
+    }
+  )
+);
 
 /**
  * OAuth Strategy Overview
@@ -54,7 +82,6 @@ passport.use(new LocalStrategy({ usernameField: "email" }, (email: string, passw
  *       - If there is, return an error message.
  *       - Else create a new account.
  */
-
 
 /**
  * Sign in with Facebook.
@@ -119,23 +146,31 @@ passport.use(new LocalStrategy({ usernameField: "email" }, (email: string, passw
 /**
  * Login Required middleware.
  */
-export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login");
+export const isAuthenticated = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect("/login");
 };
 
 /**
  * Authorization Required middleware.
  */
-export const isAuthorized = (req: Request, res: Response, next: NextFunction) => {
-    const provider = req.path.split("/").slice(-1)[0];
+export const isAuthorized = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const provider = req.path.split("/").slice(-1)[0];
 
-    const user = req.user as UserDocument;
-    if (find(user.tokens, { kind: provider })) {
-        next();
-    } else {
-        res.redirect(`/auth/${provider}`);
-    }
+  const user = req.user as UserDocument;
+  if (find(user.tokens, { kind: provider })) {
+    next();
+  } else {
+    res.redirect(`/auth/${provider}`);
+  }
 };
