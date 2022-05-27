@@ -24,7 +24,6 @@ import * as apiController from "./controllers/api";
 
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
-// console.log(colorArray.length)
 
 // Create Express server
 const app = express();

@@ -12,7 +12,7 @@ export type ElementDocument = mongoose.Document & {
   useFrames?: string[];
   length?: number;
   elName: string;
-  topEffects?: Effect[];
+  topEffect?: string;
 };
 
 const elementSchema = new mongoose.Schema<ElementDocument>(
@@ -24,7 +24,7 @@ const elementSchema = new mongoose.Schema<ElementDocument>(
     useFrames: Object,
     length: Number,
     elName: String,
-    topEffects: Object
+    topEffect: String
   },
   { timestamps: true }
 );

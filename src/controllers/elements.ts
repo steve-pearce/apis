@@ -56,9 +56,9 @@ export const elements: any = {
                 key: 'eval(`instancedMesh-${props.i}`)',
                 ref: 'eval(refs.ref)',
                 args: 'eval([null, null, props.size * props.size])',
-                onPointerMove: 'eval((e) => { e.stopPropagation(); setState({ ...state, hovered: e.instanceId }); props.setUpdateFrame(true); setTimeout(() => {setState({ ...state, hovered: undefined }); props.setUpdateFrame(true)}, 0) })',
-                onPointerOut: 'eval((e) => { e.stopPropagation(); setState({ ...state, hovered: undefined }); props.setUpdateFrame(true) })',
-                onClick: 'eval((e) => { e.stopPropagation(); setState({ ...state, hovered: e.instanceId }); props.setUpdateFrame(true); props.socket.emit("colored", { elName: props.elName, c: props.color, id: e.instanceId, i: props.i, mine: props.mine, size: props.size }) })'
+                onPointerMove: 'eval((e) => setState({ ...state, hovered: e.instanceId, updateFrame: true }))',
+                onPointerOut: 'eval((e) => setState({ ...state, hovered: undefined, updateFrame: true }))',
+                onClick: 'eval((e) => { e.stopPropagation(); setState({ ...state, hovered: e.instanceId, updateFrame: true }); props.socket.emit("colored", { elName: props.elName, c: props.color, id: e.instanceId, i: props.i, mine: props.mine, size: props.size }) })'
             },
             children: [
                 {
@@ -73,7 +73,7 @@ export const elements: any = {
                             props: {
                                 key: 'eval(`instancedBufferAttribute-${props.i}`)',
                                 attachObject: ['attributes', 'color'],
-                                args: 'eval([colorArray, 3])'
+                                args: 'eval([state.colors, 3])'
                             }
                         }
                     ]
@@ -98,7 +98,7 @@ export const elements: any = {
                         threeObject.updateMatrix();
                         refs.ref.current.setMatrixAt(id, threeObject.matrix);
                         if (state.hovered !== refs.prevRef.Current) {
-                            new _3.Color().set(id === state.hovered ? props.color : props.data[id]).toArray(colorArray, id * 3);
+                            new _3.Color().set(id === state.hovered ? props.color : props.datum[id]).toArray(state.colors, id * 3);
                             if (refs.ref.current.geometry.attributes.color) refs.ref.current.geometry.attributes.color.needsUpdate = true;
                         }
                     }
@@ -111,27 +111,18 @@ export const elements: any = {
                             fill(i++)
                         }
                         refs.ref.current.instanceMatrix.needsUpdate = true;
-                    props.setUpdateFrame(false)
+                    setState({ ...state, updateFrame: false });
                 }`,
                 deps: '[state.hovered]'
             }
         ],
-        topEffects: [
-            {
-                effect: `() => {
-                    if (Object.keys(_params).length || Object.keys(params || {}).length) {
-                        _socket.emit("colors", { ..._params, size: _params?.size || '128' })
-                        const datum = _data;
-                        _socket.on(key, ({ color, i }) => {
-                            datum[i] = color
-                            setData([...datum])
-                            setUpdateFrame(true)
-                        })
-                    }
-                }`,
-                deps: `[searchParams]`
-            }
-        ]
+        topEffect: `
+        if (key) state.socket?.emit("crud", { params: Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries()), ...state?.params, is: [0,1,2,3,4,5] });
+                    state.socket?.on(key, ({ color, i }) => {
+                        console.log('Key', key)
+                        state.data[i] = color;
+                        setState({ ...state, updateFrame: true, data: [...state.data] });
+                    })`
     },
     LoginButton: {
         element: "eval(packages.Button)",
@@ -152,52 +143,6 @@ export const elements: any = {
           }))`
         }
     },
-    Canvas: {
-        element: 'eval(packages.Canvas)',
-        props: {
-            dpr: [1, 2],
-            performance: {
-                current: 0.1,
-                min: 0.1,
-                max: 1,
-                debounce: 200,
-            },
-            frameloop: 'demand', camera: { position: [625, 625, 625], near: 10, far: 2147483647 }, gl: { antialias: false, alpha: false }, onCreated: `eval(({ gl }) => gl.setClearColor('black'))`
-        },
-        children: [
-            {
-                element: 'eval(ambientLight)',
-                props: {},
-                children: []
-            },
-            {
-                element: 'eval(packages.Switch)',
-                props: {},
-                children: [
-                    {
-                        element: 'eval(packages.Route)',
-                        props: { path: '/' },
-                        children: ['eval((_params) => data && data.length === 6 && data.map((datum, i) => <packages.Boxes {...({ ...(params || { size: 500 }), i, key: i, setUpdateFrame, updateFrame, setData, data: datum, color })} />))']
-                    }
-                ]
-            },
-            {
-                element: 'eval(packages.OrbitControls)',
-                props: {},
-                children: []
-            },
-            {
-                element: 'eval(packages.Effects)',
-                props: {},
-                children: []
-            },
-            {
-                element: 'eval(packages.AdaptiveDpr)',
-                props: { pixelated: true },
-                children: []
-            },
-        ]
-    },    
     Header: {
         element: 'eval(packages.AppBar)',
         props: { position: 'static', style: { width: '100%' } },
@@ -229,14 +174,14 @@ export const elements: any = {
                         children: [
                             {
                                 element: 'eval(packages.IconButton)',
-                                children: [{ element: `eval(packages.MenuIcon)`, onClick: 'eval(props.context.onClick ? props.context.onClick({ anchorElNavOpen: false, anchorElOpen: true }) : props.context.setState({ anchorElNavOpen: false, anchorElOpen: true }))', }],
+                                children: [{ element: `eval(packages.MenuIcon)`, onClick: 'eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: true }))', }],
                                 props: {
                                     style: { marginLeft: 10 },
                                     size: "large",
                                     "aria-label": "Menu Options",
                                     "aria-controls": "menu-appbar",
                                     "aria-haspopup": true,
-                                    onClick: 'eval(props.context.onClick ? props.context.onClick({ anchorElNavOpen: false, anchorElOpen: true, currentTarget: event.currentTarget }) : props.context.setState({ anchorElNavOpen: false, anchorElOpen: true, currentTarget: event.currentTarget }))',
+                                    onClick: 'eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: true, currentTarget: event.currentTarget }))',
                                     color: "inherit"
                                 }
                             },
@@ -256,7 +201,7 @@ export const elements: any = {
                                         horizontal: 'right',
                                     },
                                     open: 'eval(props.context.anchorElNavOpen)',
-                                    onClose: 'eval(props.context.onClick ? props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }) || : props.context.setState({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))',
+                                    onClose: 'eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))',
                                 },
                                 children: ['Logout'].map(key =>
                                 ({
@@ -311,7 +256,7 @@ export const elements: any = {
                         element: 'eval(packages.IconButton)',
                         props: { 
                             style: { marginRight: 10 },
-                            onClick: `eval(props.context.id_token ? props.context.onClick({ anchorElNavOpen: true, anchorElOpen: false, currentTarget: event.currentTarget }) : new packages.auth0.WebAuth({
+                            onClick: `eval(props.context.id_token ? props.context.setState({ anchorElNavOpen: true, anchorElOpen: false, currentTarget: event.currentTarget }) : new packages.auth0.WebAuth({
                             clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
@@ -347,12 +292,12 @@ export const elements: any = {
                                 horizontal: 'left',
                             },
                             open: 'eval(props.context.anchorElOpen)',
-                            onClose: 'eval(props.context.onClose ? props.context.onClose({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }) : props.context.setState({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))',
+                            onClose: 'eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))',
                         },
                         children: ['Space'].map(key =>
                         ({
                             element: 'eval(packages.MenuItem)',
-                            props: { label: `eval(props.context.id_token ? "${key}" : "Login")`, disableRipple: true, style: { width: "100%", color: 'black' }, key, onClick: `eval(props.context.id_token ? props.context.onClick({ anchorElNavOpen: false, anchorElOpen: false }) : new packages.auth0.WebAuth({
+                            props: { label: `eval(props.context.id_token ? "${key}" : "Login")`, disableRipple: true, style: { width: "100%", color: 'black' }, key, onClick: `eval(props.context.id_token ? (props.context.navigate ? props.context.navigate('/space') : window.location.href = '/space',props.context.setState({ anchorElNavOpen: false, anchorElOpen: false })) : new packages.auth0.WebAuth({
                                 clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
                                 domain: 'dev-1q0ufr8q.us.auth0.com',
                               }).authorize({
