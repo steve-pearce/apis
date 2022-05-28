@@ -315,8 +315,7 @@ Below is a list of all the scripts this template has available:
 | -------------------- | --------------------------------------------------------------------------------------------- |
 | `build-sass`         | Compiles all `.scss` files to `.css` files                                                    |
 | `build-ts`           | Compiles all source `.ts` files to `.js` files in the `dist` folder                           |
-| `build`              | Full build. Runs ALL build tasks (`build-sass`, `build-ts`, `lint`, `copy-static-assets`)     |
-| `copy-static-assets` | Calls script that copies JS libs, fonts, and images to dist directory                         |
+| `build`              | Full build. Runs ALL build tasks (`build-sass`, `build-ts`, `lint`)                           |
 | `debug`              | Performs a full build and then serves the app in watch mode                                   |
 | `lint`               | Runs ESLint on project files                                                                  |
 | `serve-debug`        | Runs the app with the --inspect flag                                                          |
@@ -645,7 +644,7 @@ In that file you'll find two sections:
 | nodemon      | Utility that automatically restarts node process when it crashes        |
 | supertest    | HTTP assertion library.                                                 |
 | ts-jest      | A preprocessor with sourcemap support to help use TypeScript with Jest. |
-| ts-node      | Enables directly running TS files. Used to run `copy-static-assets.ts`  |
+| ts-node      | Enables directly running TS files.                                      |
 | eslint       | Linter for JavaScript and TypeScript files                              |
 | typescript   | JavaScript compiler/type checker that boosts JavaScript productivity    |
 

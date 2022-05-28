@@ -41,7 +41,8 @@ mongoose
   });
 
 // Express configuration
-app.set("port", process.env.PORT || 3000);
+const portNumber = Number(process.env.PORT || "3000");
+app.set("port", portNumber);
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
