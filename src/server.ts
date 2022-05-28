@@ -11,10 +11,12 @@ if (process.env.NODE_ENV === "development") {
 /**
  * Start Express server.
  */
-const server = app.listen(app.get("port"), () => {
+// Express configuration
+const portNumber = Number(process.env.PORT || "3000");
+const server = app.listen(portNumber, () => {
   console.log(
-    "  App is running at http://localhost:%d in %s mode",
-    app.get("port"),
+    "portNumber App is running at http://localhost:%d in %s mode",
+    portNumber,
     app.get("env")
   );
   console.log("  Press CTRL-C to stop\n");
