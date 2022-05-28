@@ -133,7 +133,7 @@ export const elements: any = {
             domain: 'dev-1q0ufr8q.us.auth0.com',
           }).authorize({
             responseType: 'token id_token',
-            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+            redirectUri: 'https://www.crud.dev',
             audience:
               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
               'https://localhost:4000' ||
@@ -243,7 +243,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+                            redirectUri: 'https://www.crud.dev',
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://crud.dev',
@@ -260,7 +260,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+                            redirectUri: 'https://www.crud.dev',
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://localhost:4000' ||
@@ -301,7 +301,7 @@ export const elements: any = {
                                 domain: 'dev-1q0ufr8q.us.auth0.com',
                               }).authorize({
                                 responseType: 'token id_token',
-                                redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
+                                redirectUri: 'https://www.crud.dev',
                                 audience:
                                   'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                                   'https://localhost:4000' ||

@@ -8,17 +8,15 @@ import { elements } from "./elements";
 */
 export const index = async (req: Request, res: Response) => {
     // await Element.deleteOne({element: req.params.e})
-    // await Element.deleteMany()
+    // await Element.deleteMany();
     let ele = await Element.findOne({elName: req.params.e});
     if (!ele && elements[req.params.e]) {
-        // console.log("element null", ele)
         ele = new Element({
             ...elements[req.params.e],
             elName: req.params.e
         });
         await ele.save();
     }
-    console.log(req.params.e, "element");
     res.send(ele || elements[req.params.e] || null);
 };
 
