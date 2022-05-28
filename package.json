@@ -9,6 +9,7 @@
   "author": "Bowden Kelly",
   "license": "MIT",
   "scripts": {
+    "heroku-prebuild": "npm install --global ts-node && npm install --global nodemon",
     "dev": "nodemon src/server.ts",
     "build-ts": "tsc",
     "build": " npm run build-ts && npm run lint && npm run copy-static-assets",
