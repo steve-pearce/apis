@@ -17,6 +17,7 @@ export const index = async (req: Request, res: Response) => {
         });
         await ele.save();
     }
+    if (ele.elName === "Header") console.log(ele);
     res.send(ele || elements[req.params.e] || null);
 };
 
