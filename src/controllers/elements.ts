@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import {colors} from "./colors";
 import {redis} from "./redis";
 import { Element } from "../models/Element";
 
