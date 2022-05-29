@@ -194,8 +194,8 @@ export const elements: any = {
                                 )`}].map(({key, onClick}, i) =>
                                 ({
                                     element: "eval(packages.MenuItem)",
-                                    props: { label: key === "My Canvas" ? 'key' : key, style: { width: "100%", color: "black" }, key, onClick, sx: { my: 2, color: "white", display: "block" } },
-                                    children: [key === "My Canvas" ? 'eval(const params = Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries());params.email !== props.context.email ? "My Canvas" : "☭ Our Canvas ☭")' : key]
+                                    props: { label: key === "My Canvas" ? "key" : key, style: { width: "100%", color: "black" }, key, onClick, sx: { my: 2, color: "white", display: "block" } },
+                                    children: [key === "My Canvas" ? "eval(const params = Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries());params.email !== props.context.email ? \"My Canvas\" : \"☭ Our Canvas ☭\")" : key]
                                 }))
                             }
                         ]
@@ -232,7 +232,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: ${process.env.NODE_ENV === 'development' ? 'https://localhost:8080' : 'https://www.crud.dev'},
+                            redirectUri: ${process.env.NODE_ENV === "development" ? "https://localhost:8080" : "https://www.crud.dev"},
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://crud.dev',
@@ -249,7 +249,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: ${process.env.NODE_ENV === 'development' ? 'https://localhost:8080' : 'https://www.crud.dev'},
+                            redirectUri: ${process.env.NODE_ENV === "development" ? "https://localhost:8080" : "https://www.crud.dev"},
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://localhost:4000' ||
@@ -290,7 +290,7 @@ export const elements: any = {
                                 domain: 'dev-1q0ufr8q.us.auth0.com',
                               }).authorize({
                                 responseType: 'token id_token',
-                                redirectUri: ${process.env.NODE_ENV === 'development' ? 'https://localhost:8080' : 'https://www.crud.dev'},
+                                redirectUri: ${process.env.NODE_ENV === "development" ? "https://localhost:8080" : "https://www.crud.dev"},
                                 audience:
                                   'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                                   'https://localhost:4000' ||
