@@ -118,29 +118,9 @@ export const elements: any = {
         topEffect: `
         if (key) state.socket?.emit("crud", { params: Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries()), ...state?.params, is: [0,1,2,3,4,5] });
                     state.socket?.on(key, ({ color, i }) => {
-                        console.log('Key', key)
                         state.data[i] = color;
                         setState({ ...state, updateFrame: true, data: [...state.data] });
                     })`
-    },
-    LoginButton: {
-        element: "eval(packages.Button)",
-        children: ["eval(props.id_token ? \"Logout\" : \"Login\")"],
-        props: {
-            label: "eval(props.id_token ? \"Logout\" : \"Login\")",
-            onClick: `eval(props.id_token ? window.location.href = '/' : new packages.auth0.WebAuth({
-            clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
-            domain: 'dev-1q0ufr8q.us.auth0.com',
-          }).authorize({
-            responseType: 'token id_token',
-            redirectUri: 'https://www.crud.dev',
-            audience:
-              'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
-              'https://localhost:4000' ||
-              'https://crud.dev',
-            scope: 'openid email',
-          }))`
-        }
     },
     Header: {
         element: "eval(packages.AppBar)",
@@ -202,11 +182,20 @@ export const elements: any = {
                                     open: "eval(props.context.anchorElNavOpen)",
                                     onClose: "eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: false, currentTarget: null }))",
                                 },
-                                children: ["Logout"].map(key =>
+                                children: [{key: "Logout", onClick: "eval(window.location.href = \"/\")"}, {
+                                    key: "My Canvas",
+                                onClick: `eval(
+                                    const params = Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries());
+                                    const mine = params?.mine === undefined ? true : params?.mine == 'true' ? false : true
+                                    props.context.navigate({
+                                        pathname: '/',
+                                        search: params.email !== props.context.email ? '?email='+ props.context.email + '&mine=true' : '?email=&mine=false',
+                                    })
+                                )`}].map(({key, onClick}, i) =>
                                 ({
                                     element: "eval(packages.MenuItem)",
-                                    props: { label: key, style: { width: "100%", color: "black" }, key, onClick: "eval(window.location.href = \"/\")", sx: { my: 2, color: "white", display: "block" } },
-                                    children: [key]
+                                    props: { label: key === "My Canvas" ? 'key' : key, style: { width: "100%", color: "black" }, key, onClick, sx: { my: 2, color: "white", display: "block" } },
+                                    children: [key === "My Canvas" ? 'eval(const params = Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries());params.email !== props.context.email ? "My Canvas" : "☭ Our Canvas ☭")' : key]
                                 }))
                             }
                         ]
@@ -243,7 +232,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: 'https://www.crud.dev',
+                            redirectUri: ${process.env.NODE_ENV === 'development' ? 'https://localhost:8080' : 'https://www.crud.dev'},
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://crud.dev',
@@ -260,7 +249,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: 'https://www.crud.dev',
+                            redirectUri: ${process.env.NODE_ENV === 'development' ? 'https://localhost:8080' : 'https://www.crud.dev'},
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://localhost:4000' ||
@@ -301,7 +290,7 @@ export const elements: any = {
                                 domain: 'dev-1q0ufr8q.us.auth0.com',
                               }).authorize({
                                 responseType: 'token id_token',
-                                redirectUri: 'https://www.crud.dev',
+                                redirectUri: ${process.env.NODE_ENV === 'development' ? 'https://localhost:8080' : 'https://www.crud.dev'},
                                 audience:
                                   'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                                   'https://localhost:4000' ||
