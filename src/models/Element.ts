@@ -13,6 +13,7 @@ export type ElementDocument = mongoose.Document & {
   length?: number;
   elName: string;
   topEffect?: string;
+  main_id?: mongoose.Schema.Types.ObjectId
 };
 
 const elementSchema = new mongoose.Schema<ElementDocument>(
@@ -24,7 +25,8 @@ const elementSchema = new mongoose.Schema<ElementDocument>(
     useFrames: Object,
     length: Number,
     elName: String,
-    topEffect: String
+    topEffect: String,
+    main_id: mongoose.Schema.Types.ObjectId
   },
   { timestamps: true }
 );

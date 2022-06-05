@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ObjectId } from "mongodb";
 import { Element } from "../models/Element";
 import { elements } from "./elements";
 
@@ -7,18 +8,24 @@ import { elements } from "./elements";
  * @route GET /element
 */
 export const index = async (req: Request, res: Response) => {
-    // await Element.deleteOne({element: req.params.e})
+    // await Element.deleteOne({elName})
     // await Element.deleteMany();
-    let ele = await Element.findOne({elName: req.params.e});
-    if (!ele && elements[req.params.e]) {
-        ele = new Element({
-            ...elements[req.params.e],
-            elName: req.params.e
-        });
-        await ele.save();
+    try {
+        const { elName } = req.params;
+        // console.log({elName, _id: elName.split(':')[1]})
+        let ele = await (elName.includes(":") ? Element.findById(new ObjectId(elName.split(":")[1])) : Element.findOne({elName}));
+        if (!ele && elements[elName]) {
+            ele = new Element({
+                ...elements[elName],
+                elName
+            });
+            await ele.save();
+        }
+        // if (ele?.elName !== "Header") console.log(ele);
+        res.send(ele || elements[elName] || null);   
+    } catch (error) {
+        res.send(error);
     }
-    if (ele.elName === "Header") console.log(ele);
-    res.send(ele || elements[req.params.e] || null);
 };
 
 
@@ -27,15 +34,19 @@ export const index = async (req: Request, res: Response) => {
  * @route POST /element
 */
 export const postIndex = async(req: Request, res: Response) => {
-    await Element.deleteOne({element: req.params.e});
-    let ele = await Element.findOne({element: req.params.e});
-    if (!ele && elements[req.params.e]) {
-        ele = new Element({
-            ...elements[req.params.e]
+    try {
+        if (req.body.element && req.body.elName) {
+            const ele = new Element({
+                ...req.body
         });
-        await ele.save();
-        res.send({success: true});
-    } else res.send(null);
+            await ele.save();
+            console.log("postIndex ", req.body);
+            res.send({success: true});
+        } else res.send({success: false, error: !req.body.element ? "Missing Element" : "Missing Element Name"});
+    } catch (error) {
+        res.send({success: false, error});
+    }
+
 };
 
 /**
@@ -43,16 +54,21 @@ export const postIndex = async(req: Request, res: Response) => {
  * @route PUT /element
 */
 export const putIndex = async(req: Request, res: Response) => {
-    // await Element.updateOne({element: req.params.e})
+    // await Element.updateOne({elName})
     res.send(null);
 };
 
+
+export const patchIndex = async(req: Request, res: Response) => {
+    // await Element.updateOne({elName})
+    res.send(null);
+};
 
 /**
  * element destroyer. beware! 🔥
  * @route DELETE /element
 */
 export const deleteIndex = (req: Request, res: Response) => {
-    // await Element.deleteOne({element: req.params.e})
+    // await Element.deleteOne({elName})
     res.send(null);
 };

@@ -8,7 +8,6 @@ import { Element } from "../models/Element";
 */
 export const index = async (req: Request, res: Response) => {
     const eles = await Element.find();
-    // console.log(eles)
     res.send(eles || []);
 };
 
@@ -57,7 +56,7 @@ export const elements: any = {
                 args: "eval([null, null, props.size * props.size])",
                 onPointerMove: "eval((e) => setState({ ...state, hovered: e.instanceId, updateFrame: true }))",
                 onPointerOut: "eval((e) => setState({ ...state, hovered: undefined, updateFrame: true }))",
-                onClick: "eval((e) => { e.stopPropagation(); setState({ ...state, hovered: e.instanceId, updateFrame: true }); props.socket.emit(\"colored\", { elName: props.elName, c: props.color, id: e.instanceId, i: props.i, mine: props.mine, size: props.size }) })"
+                onClick: "eval((e) => { e.stopPropagation(); setState({ ...state, hovered: e.instanceId, updateFrame: true }); props.socket.emit(\"colored\", { elName: props.elName, _id: props._id, c: props.color, id: e.instanceId, i: props.i, mine: props.mine, size: props.size }) })"
             },
             children: [
                 {
@@ -123,18 +122,18 @@ export const elements: any = {
                     })`
     },
     Header: {
-        element: "eval(packages.AppBar)",
-        props: { position: "static", style: { width: "100%" } },
+        element: "eval(packages.MUI.AppBar)",
+        props: { position: "static", style: { width: "100%", "borderRadius": 5 } },
         children: [
             {
-                element: "eval(packages.Toolbar)",
+                element: "eval(packages.MUI.Toolbar)",
                 props: {
                     disableGutters: true,
                     style: { width: "100%", backgroundColor: "black", borderColor: "ghostwhite", borderRadius: 5, border: "solid", borderWidth: 1 }
                 },
                 children: [
                     {
-                        element: "eval(packages.Typography)",
+                        element: "eval(packages.MUI.Typography)",
                         children: "CRUD",
                         props: {
                             className: "crud",
@@ -146,14 +145,14 @@ export const elements: any = {
                         }
                     },
                     {
-                        element: "eval(packages.Box)",
+                        element: "eval(packages.MUI.Box)",
                         props: {
                             sx: { flexGrow: 1, display: { xs: "flex", md: "none" } },
                         },
                         children: [
                             {
-                                element: "eval(packages.IconButton)",
-                                children: [{ element: "eval(packages.MenuIcon)", onClick: "eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: true }))", }],
+                                element: "eval(packages.MUI.IconButton)",
+                                children: [{ element: "eval(packages.MUI_ICONS.Menu)", onClick: "eval(props.context.setState({ anchorElNavOpen: false, anchorElOpen: true }))", }],
                                 props: {
                                     style: { marginLeft: 10 },
                                     size: "large",
@@ -165,7 +164,7 @@ export const elements: any = {
                                 }
                             },
                             {
-                                element: "eval(packages.Menu)",
+                                element: "eval(packages.MUI.Menu)",
                                 props: {
                                     sx: { mt: "45px" },
                                     id: "menu-appbar",
@@ -193,15 +192,15 @@ export const elements: any = {
                                     })
                                 )`}].map(({key, onClick}, i) =>
                                 ({
-                                    element: "eval(packages.MenuItem)",
-                                    props: { label: key === "My Canvas" ? 'key' : key, style: { width: "100%", color: "black" }, key, onClick, sx: { my: 2, color: "white", display: "block" } },
-                                    children: [key === "My Canvas" ? 'eval(const params = Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries());params.email !== props.context.email ? "My Canvas" : "☭ Our Canvas ☭")' : key]
+                                    element: "eval(packages.MUI.MenuItem)",
+                                    props: { label: key === "My Canvas" ? "key" : key, style: { width: "100%", color: "black" }, key, onClick, sx: { my: 2, color: "white", display: "block" } },
+                                    children: [key === "My Canvas" ? "eval(const params = Object.fromEntries(new URLSearchParams(window.location.search.toString()).entries());params.email !== props.context.email ? \"My Canvas\" : \"☭ Our Canvas ☭\")" : key]
                                 }))
                             }
                         ]
                     },
                     {
-                        element: "eval(packages.Typography)",
+                        element: "eval(packages.MUI.Typography)",
                         children: ["CRUD"],
                         props: {
                             className: "crud",
@@ -217,7 +216,7 @@ export const elements: any = {
                         }
                     },
                     {
-                        element: "eval(packages.Box)",
+                        element: "eval(packages.MUI.Box)",
                         props: {
                             style: {color: "white"},
                             sx: {
@@ -232,7 +231,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: 'https://www.crud.dev',
+                            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://crud.dev',
@@ -241,7 +240,7 @@ export const elements: any = {
                         label: `eval(props.context.id_token ? "${key}" : "Login")`, style: { color: "white" }, sx: { my: 2, color: "white", display: "block" }, children: `eval(props.context.id_token ? "${key}" : "Login")` } }))
                     },
                     {
-                        element: "eval(packages.IconButton)",
+                        element: "eval(packages.MUI.IconButton)",
                         props: { 
                             style: { marginRight: 10 },
                             onClick: `eval(props.context.id_token ? props.context.setState({ anchorElNavOpen: true, anchorElOpen: false, currentTarget: event.currentTarget }) : new packages.auth0.WebAuth({
@@ -249,7 +248,7 @@ export const elements: any = {
                             domain: 'dev-1q0ufr8q.us.auth0.com',
                           }).authorize({
                             responseType: 'token id_token',
-                            redirectUri: 'https://www.crud.dev',
+                            redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
                             audience:
                               'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                               'https://localhost:4000' ||
@@ -258,14 +257,14 @@ export const elements: any = {
                           }))`, sx: { p: 0 } },
                         children: [
                             {
-                                element: "eval(packages.Avatar)",
+                                element: "eval(packages.MUI.Avatar)",
                                 props: { alt: "Avatar Sharp", src: "eval(props.context.id_token ? \"https://cdn.pixabay.com/photo/2016/04/15/18/05/computer-1331579_960_720.png\" : \"https://media.istockphoto.com/photos/businessman-icon-as-avatar-or-default-profile-picture-picture-id477021414?k=20&m=477021414&s=612x612&w=0&h=mf3xeqh6T9gS-TEBYaIS8g9GJf-tre6jTd0MkR0vNLM=\")" },
                                 children: [""]
                             }
                         ]
                     },
                     {
-                        element: "eval(packages.Menu)",
+                        element: "eval(packages.MUI.Menu)",
                         props: {
                             sx: { mt: "45px" },
                             id: "menu-appbar",
@@ -284,13 +283,13 @@ export const elements: any = {
                         },
                         children: ["Space"].map(key =>
                         ({
-                            element: "eval(packages.MenuItem)",
+                            element: "eval(packages.MUI.MenuItem)",
                             props: { label: `eval(props.context.id_token ? "${key}" : "Login")`, disableRipple: true, style: { width: "100%", color: "black" }, key, onClick: `eval(props.context.id_token ? (props.context.navigate ? props.context.navigate('/space') : window.location.href = '/space',props.context.setState({ anchorElNavOpen: false, anchorElOpen: false })) : new packages.auth0.WebAuth({
                                 clientID: 'SA2roSgpXmsas2TOEH5RVRugsyCk7Rp7',
                                 domain: 'dev-1q0ufr8q.us.auth0.com',
                               }).authorize({
                                 responseType: 'token id_token',
-                                redirectUri: 'https://www.crud.dev',
+                                redirectUri: 'https://localhost:8080' || 'https://www.crud.dev',
                                 audience:
                                   'https://dev-1q0ufr8q.us.auth0.com/api/v2/' ||
                                   'https://localhost:4000' ||

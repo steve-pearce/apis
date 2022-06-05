@@ -60,10 +60,12 @@ app.use(
  * Primary app routes.
  */
 app.get("/", homeController.index);
-app.get("/element/:e", elementController.index);
-app.post("/element/:e", elementController.postIndex);
-app.put("/element/:e", elementController.putIndex);
-app.delete("/element/:e", elementController.deleteIndex);
+app.get("/element/:elName", elementController.index);
+app.patch("/element", elementController.patchIndex);
+app.post("/element", elementController.postIndex);
+
+app.put("/element", elementController.putIndex);
+app.delete("/element", elementController.deleteIndex);
 app.get("/elements", elementsController.index);
 
 
